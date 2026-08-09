@@ -26,7 +26,7 @@ jobs:
       - name: Install development tools
         run: python -m pip install -r requirements-dev.txt
       - name: Validate open Agent Skills contract
-        run: agentskills validate skills/collision-free-agentic-development
+        run: python scripts/validate_skills.py
       - name: Run every pre-commit gate
         run: pre-commit run --all-files
 

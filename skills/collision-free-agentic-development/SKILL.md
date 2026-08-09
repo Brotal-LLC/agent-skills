@@ -5,8 +5,9 @@ license: MIT
 compatibility: Requires Python 3.11+ and Docker Compose 2.x using Linux containers. Supports Linux, macOS Docker Desktop, and Windows Docker Desktop/WSL2.
 metadata:
   author: "Brotal LLC"
-  version: "1.0.0"
+  version: "1.1.0"
   platforms: "linux,macos,windows"
+  children: "caddy-docker-proxy-routing,compose-development-environments,rootless-dev-container-filesystems,dev-container-package-caches,containerized-development-tooling,development-pki-and-split-dns,cloudflare-tunnels-and-caddy-dns"
 ---
 
 # Collision-Free Agentic Development
@@ -27,6 +28,22 @@ The architecture uses:
 - rendered-config and end-to-end verification before declaring success.
 
 This skill is compatible with the Agent Skills `SKILL.md` format. Its Python helper uses only the standard library and works on Linux, macOS, and Windows Docker Desktop.
+
+## Companion Skill Router
+
+This is the parent/orchestration skill. Load focused companions when a task crosses their boundary; install them independently when only one concern is needed.
+
+| Concern | Companion skill |
+|---|---|
+| CDP labels, shared-host route ownership, HTTP/HTTPS/h2c/gRPC/WebSocket/FastCGI upstreams | [`caddy-docker-proxy-routing`](../caddy-docker-proxy-routing/) |
+| Compose files, overlays, profiles, project identity, lifecycle, merge/debug behavior | [`compose-development-environments`](../compose-development-environments/) |
+| Non-root UID/GID, read-only source, writable workspace, named volume/tmpfs ownership | [`rootless-dev-container-filesystems`](../rootless-dev-container-filesystems/) |
+| NuGet/npm/pnpm/Yarn/Maven/Gradle/Cargo/pip caches and invalidation | [`dev-container-package-caches`](../dev-container-package-caches/) |
+| Container-resident LSPs, devcontainer wiring, watchers, logs, health, debugger attachment | [`containerized-development-tooling`](../containerized-development-tooling/) |
+| Internal CA, public/wildcard certificate policy, CA fair use, split-horizon DNS | [`development-pki-and-split-dns`](../development-pki-and-split-dns/) |
+| Named `cloudflared` tunnels, private routes, Cloudflare-scoped DNS-01 for Caddy | [`cloudflare-tunnels-and-caddy-dns`](../cloudflare-tunnels-and-caddy-dns/) |
+
+Do not load every companion reflexively. The parent establishes isolation; load the smallest set that owns the active risk. For example, a root-owned `node_modules` failure needs filesystem and cache companions, not a tunnel seminar.
 
 ## When to Use
 
@@ -89,7 +106,18 @@ Do not guess paths, commands, users, or ports from the template. Adapt them to t
 
 ### 2. Install the app templates
 
-Copy `templates/app/` into the repository, or use the helper from the skill directory:
+Copy the bundled app template set into the repository, or use the helper [`scripts/devstack.py`](scripts/devstack.py) from the skill directory:
+
+- [`templates/app/.env.example`](templates/app/.env.example)
+- [`templates/app/Directory.Build.props.example`](templates/app/Directory.Build.props.example)
+- [`templates/app/Dockerfile.dotnet.dev`](templates/app/Dockerfile.dotnet.dev)
+- [`templates/app/Dockerfile.node.dev`](templates/app/Dockerfile.node.dev)
+- [`templates/app/compose.yaml`](templates/app/compose.yaml)
+- [`templates/app/compose.dev.yaml`](templates/app/compose.dev.yaml)
+- [`templates/app/compose.shared-data.yaml`](templates/app/compose.shared-data.yaml)
+- [`templates/app/compose.worktree-data.yaml`](templates/app/compose.worktree-data.yaml)
+- [`templates/app/compose.tls-internal.yaml`](templates/app/compose.tls-internal.yaml)
+- [`templates/app/compose.tls-cloudflare.yaml`](templates/app/compose.tls-cloudflare.yaml)
 
 ```bash
 python "$SKILL_DIR/scripts/devstack.py" scaffold --target .
@@ -111,7 +139,10 @@ For .NET, merge `Directory.Build.props.example` into the repository's `Directory
 
 ### 3. Start or verify the shared ingress
 
-If no compatible Caddy Docker Proxy exists, copy `templates/ingress/` to a machine-level infrastructure directory, create gitignored `.env` from `.env.example`, and run:
+If no compatible Caddy Docker Proxy exists, copy the bundled ingress files to a machine-level infrastructure directory, create gitignored `.env` from `.env.example`, and run:
+
+- [`templates/ingress/.env.example`](templates/ingress/.env.example)
+- [`templates/ingress/compose.yaml`](templates/ingress/compose.yaml)
 
 ```bash
 docker compose config --quiet
