@@ -1,0 +1,8 @@
+<Project>
+  <!-- Rename to Directory.Build.props or merge into the existing file. -->
+  <PropertyGroup Condition="'$(CONTAINER_BUILD_ROOT)' != ''">
+    <BaseIntermediateOutputPath>$(CONTAINER_BUILD_ROOT)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(CONTAINER_BUILD_ROOT)/bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>

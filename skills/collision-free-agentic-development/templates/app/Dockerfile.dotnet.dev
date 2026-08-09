@@ -1,0 +1,27 @@
+ARG DOTNET_VERSION=10.0
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
+
+ARG DEV_UID=1000
+ARG DEV_GID=1000
+
+RUN set -eux; \
+    if getent group "${DEV_GID}" >/dev/null; then \
+      group_record="$(getent group "${DEV_GID}")"; dev_group="${group_record%%:*}"; \
+    else \
+      dev_group=dev; groupadd --gid "${DEV_GID}" "${dev_group}"; \
+    fi; \
+    if getent passwd "${DEV_UID}" >/dev/null; then \
+      passwd_record="$(getent passwd "${DEV_UID}")"; dev_user="${passwd_record%%:*}"; \
+    else \
+      dev_user=dev; useradd --uid "${DEV_UID}" --gid "${dev_group}" --create-home "${dev_user}"; \
+    fi; \
+    mkdir -p /workspace /nuget /tmp/dev-home /tmp/dotnet-build; \
+    chown -R "${DEV_UID}:${DEV_GID}" /workspace /nuget /tmp/dev-home /tmp/dotnet-build
+
+ENV HOME=/tmp/dev-home \
+    NUGET_PACKAGES=/nuget \
+    CONTAINER_BUILD_ROOT=/tmp/dotnet-build \
+    DOTNET_USE_POLLING_FILE_WATCHER=1
+
+WORKDIR /workspace
+USER ${DEV_UID}:${DEV_GID}

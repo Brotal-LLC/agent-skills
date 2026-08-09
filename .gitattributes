@@ -1,0 +1,2 @@
+# Keep repository and generated template inputs stable on every checkout platform.
+* text=auto eol=lf

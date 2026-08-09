@@ -1,0 +1,7 @@
+services:
+  api:
+    labels:
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+  web:
+    labels:
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"

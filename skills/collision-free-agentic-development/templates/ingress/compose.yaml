@@ -1,0 +1,35 @@
+name: agent-ingress
+
+services:
+  caddy:
+    image: ${CADDY_IMAGE:-ghcr.io/skb50bd/caddy:latest}
+    container_name: agent-ingress-caddy
+    restart: unless-stopped
+    command: ["caddy", "docker-proxy"]
+    environment:
+      CADDY_INGRESS_NETWORKS: ${INGRESS_NETWORK:-agent-ingress}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+    ports:
+      - "80:80"
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - ingress
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:2019/config/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+networks:
+  ingress:
+    name: ${INGRESS_NETWORK:-agent-ingress}
+    attachable: true
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

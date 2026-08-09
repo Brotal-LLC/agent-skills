@@ -1,0 +1,19 @@
+services:
+  api:
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__Default: Host=${DB_HOST:?DB_HOST required};Port=5432;Database=${POSTGRES_DB:?POSTGRES_DB required};Username=${POSTGRES_USER:?POSTGRES_USER required};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      Redis__Configuration: ${REDIS_HOST:?REDIS_HOST required}:6379
+      Redis__KeyPrefix: ${REDIS_PREFIX:?REDIS_PREFIX required}
+    networks:
+      - default
+
+  web:
+    environment:
+      API_URL: http://api:8080
+      NEXT_PUBLIC_API_URL: https://${API_HOST:?API_HOST required}
+    networks:
+      - default
+
+networks:
+  default: {}
