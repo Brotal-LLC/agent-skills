@@ -1,0 +1,32 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Development Environment Orchestration",
+      "description": "Build collision-free, independently launchable Docker Compose development environments and reason about their lifecycle.",
+      "skills": [
+        "collision-free-agentic-development",
+        "compose-development-environments"
+      ]
+    },
+    {
+      "title": "Development Containers and Tooling",
+      "description": "Run non-root development containers with correct filesystems, package caches, language servers, watchers, logs, and debuggers.",
+      "skills": [
+        "rootless-dev-container-filesystems",
+        "dev-container-package-caches",
+        "containerized-development-tooling"
+      ]
+    },
+    {
+      "title": "Ingress, PKI, and Private Networking",
+      "description": "Route development services through Caddy Docker Proxy, Cloudflare, deliberate certificate policy, and split DNS.",
+      "skills": [
+        "caddy-docker-proxy-routing",
+        "development-pki-and-split-dns",
+        "cloudflare-tunnels-and-caddy-dns"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+services:
+  api:
+    networks:
+      - shared-data
+    environment:
+      DB_HOST: ${DB_HOST:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set the shared database password in the worktree .env}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PREFIX: ${REDIS_PREFIX:?REDIS_PREFIX required}
+
+networks:
+  shared-data:
+    external: true
+    name: ${SHARED_DATA_NETWORK:-agent-data}

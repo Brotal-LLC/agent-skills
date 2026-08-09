@@ -1,0 +1,49 @@
+services:
+  api:
+    depends_on:
+      dev-postgres:
+        condition: service_healthy
+      dev-redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: dev-postgres
+      REDIS_HOST: dev-redis
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      REDIS_PREFIX: ${REDIS_PREFIX:?REDIS_PREFIX required}
+
+  dev-postgres:
+    image: postgres:18-alpine
+    profiles: [worktree-data]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - default
+
+  dev-redis:
+    image: redis:8-alpine
+    profiles: [worktree-data]
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis_data:/data
+    networks:
+      - default
+
+volumes:
+  postgres_data: {}
+  redis_data: {}

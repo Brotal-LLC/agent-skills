@@ -1,0 +1,27 @@
+ARG NODE_VERSION=24
+FROM node:${NODE_VERSION}-bookworm-slim
+
+ARG DEV_UID=1000
+ARG DEV_GID=1000
+
+RUN set -eux; \
+    if getent group "${DEV_GID}" >/dev/null; then \
+      group_record="$(getent group "${DEV_GID}")"; dev_group="${group_record%%:*}"; \
+    else \
+      dev_group=dev; groupadd --gid "${DEV_GID}" "${dev_group}"; \
+    fi; \
+    if getent passwd "${DEV_UID}" >/dev/null; then \
+      passwd_record="$(getent passwd "${DEV_UID}")"; dev_user="${passwd_record%%:*}"; \
+      usermod --gid "${dev_group}" "${dev_user}"; \
+    else \
+      dev_user=dev; useradd --uid "${DEV_UID}" --gid "${dev_group}" --create-home "${dev_user}"; \
+    fi; \
+    mkdir -p /workspace/web/node_modules /npm-cache /tmp/dev-home; \
+    chown -R "${DEV_UID}:${DEV_GID}" /workspace /npm-cache /tmp/dev-home
+
+ENV HOME=/tmp/dev-home \
+    npm_config_cache=/npm-cache \
+    WATCHPACK_POLLING=true
+
+WORKDIR /workspace/web
+USER ${DEV_UID}:${DEV_GID}

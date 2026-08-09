@@ -1,0 +1,87 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dotnet.dev
+      args:
+        DEV_UID: ${DEV_UID:-1000}
+        DEV_GID: ${DEV_GID:-1000}
+    user: "${DEV_UID:-1000}:${DEV_GID:-1000}"
+    working_dir: /workspace
+    command:
+      - dotnet
+      - watch
+      - --non-interactive
+      - --project
+      - src/App.Api/App.Api.csproj
+      - run
+      - --no-launch-profile
+    environment:
+      HOME: /tmp/dev-home
+      NUGET_PACKAGES: /nuget
+      CONTAINER_BUILD_ROOT: /tmp/dotnet-build
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+    volumes:
+      - .:/workspace
+      - dotnet_nuget:/nuget
+    tmpfs:
+      - /tmp/dev-home:uid=${DEV_UID:-1000},gid=${DEV_GID:-1000},mode=0755
+      - /tmp/dotnet-build:uid=${DEV_UID:-1000},gid=${DEV_GID:-1000},mode=0755
+    labels:
+      caddy: ${API_HOST:?API_HOST required}
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      dev.agent-skills.hot-reload: "true"
+    networks:
+      - default
+      - ingress
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.node.dev
+      args:
+        DEV_UID: ${DEV_UID:-1000}
+        DEV_GID: ${DEV_GID:-1000}
+    user: "${DEV_UID:-1000}:${DEV_GID:-1000}"
+    working_dir: /workspace/web
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        for path in /source/* /source/.[!.]* /source/..?*; do
+          [ -e "$$path" ] || continue
+          name="$${path##*/}"
+          case "$$name" in node_modules|.next) continue ;; esac
+          ln -sfn "$$path" "/workspace/web/$$name"
+        done
+        if [ -f package-lock.json ]; then npm ci; else npm install; fi
+        exec npm run dev -- --hostname 0.0.0.0 --port 3000
+    environment:
+      HOME: /tmp/dev-home
+      npm_config_cache: /npm-cache
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./web:/source
+      - node_modules:/workspace/web/node_modules
+      - npm_cache:/npm-cache
+    tmpfs:
+      - /tmp/dev-home:uid=${DEV_UID:-1000},gid=${DEV_GID:-1000},mode=0755
+      - /workspace/web/.next:uid=${DEV_UID:-1000},gid=${DEV_GID:-1000},mode=0755
+    labels:
+      caddy: ${WEB_HOST:?WEB_HOST required}
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      dev.agent-skills.hot-reload: "true"
+    networks:
+      - default
+      - ingress
+
+networks:
+  ingress:
+    external: true
+    name: ${INGRESS_NETWORK:-agent-ingress}
+
+volumes:
+  dotnet_nuget: {}
+  node_modules: {}
+  npm_cache: {}

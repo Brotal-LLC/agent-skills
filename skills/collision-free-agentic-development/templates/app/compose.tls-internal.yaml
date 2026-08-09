@@ -1,0 +1,7 @@
+services:
+  api:
+    labels:
+      caddy.tls: internal
+  web:
+    labels:
+      caddy.tls: internal
