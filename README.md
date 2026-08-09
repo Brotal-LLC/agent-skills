@@ -63,19 +63,15 @@ Each `skills/<skill-name>/` directory is an installable unit; the repository roo
 
 ### Hermes Agent
 
-Install a direct GitHub skill identifier. Hermes reports a community-source CAUTION because this skill intentionally contains container networking, subprocess-based Docker checks, and platform CA trust commands. First inspect the immutable source and every scanner finding; after approving that exact bundle, make the override explicit:
+Hermes does not currently resolve this repository's nested skill directories through the GitHub shorthand or tap flow. Install a commit-pinned raw `SKILL.md` URL instead. The parent bundles its explicitly linked support files; replace the final skill directory to install a companion.
+
+Hermes reports a community-source CAUTION because the parent intentionally contains container networking, subprocess-based Docker checks, and platform CA trust commands. First inspect the immutable source at the exact commit below and every scanner finding. Only after approving that exact bundle should you use the explicit override:
 
 ```bash
-hermes skills install Brotal-LLC/agent-skills/skills/collision-free-agentic-development --yes --force
+hermes skills install "https://raw.githubusercontent.com/Brotal-LLC/agent-skills/f086090c462324457086777c6501cab1781fda42/skills/collision-free-agentic-development/SKILL.md" --yes --force
 ```
 
-Or add the catalog as a tap:
-
-```bash
-hermes skills tap add Brotal-LLC/agent-skills
-```
-
-Then browse/install through `hermes skills browse`. See the current Hermes documentation if CLI behavior changes: <https://hermes-agent.nousresearch.com/docs/>.
+See the current Hermes documentation if CLI behavior changes: <https://hermes-agent.nousresearch.com/docs/>.
 
 ## Quality and compatibility
 
