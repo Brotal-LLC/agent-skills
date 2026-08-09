@@ -257,18 +257,24 @@ class CompanionSkillCatalogTests(unittest.TestCase):
     def test_readme_documents_installable_hermes_identifier_and_caddy_exception(self) -> None:
         readme = (REPO / "README.md").read_text(encoding="utf-8")
         expected = (
-            "hermes skills install "
-            "Brotal-LLC/agent-skills/skills/collision-free-agentic-development "
-            "--yes --force"
+            'hermes skills install "https://raw.githubusercontent.com/'
+            "Brotal-LLC/agent-skills/f086090c462324457086777c6501cab1781fda42/"
+            'skills/collision-free-agentic-development/SKILL.md" --yes --force'
         )
         self.assertIn(expected, readme)
+        self.assertRegex(
+            readme,
+            r"https://raw\.githubusercontent\.com/Brotal-LLC/agent-skills/"
+            r"[0-9a-f]{40}/skills/collision-free-agentic-development/SKILL\.md",
+        )
         self.assertIn("community-source CAUTION", readme)
         self.assertIn("inspect the immutable source", readme)
-        self.assertNotRegex(
+        self.assertNotIn(
+            "hermes skills install "
+            "Brotal-LLC/agent-skills/skills/collision-free-agentic-development",
             readme,
-            r"(?m)^hermes skills install "
-            r"Brotal-LLC/agent-skills/collision-free-agentic-development$",
         )
+        self.assertNotIn("hermes skills tap add Brotal-LLC/agent-skills", readme)
         self.assertIn("deliberate project-policy exception", readme)
         self.assertIn("ghcr.io/skb50bd/caddy:latest", readme)
 
